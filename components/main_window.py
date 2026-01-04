@@ -15,11 +15,12 @@ class MainWindow(QMainWindow):
         self.create_menus()
 
         scroll_area = QScrollArea()
+        scroll_area.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         self.label = QLabel()
-        self.label.setBackgroundRole(QPalette.Base)
+        self.label.setBackgroundRole(QPalette.ColorRole.Base)
 
         scroll_area.setWidget(self.label)
-        scroll_area.setAlignment(Qt.AlignCenter)
         self.setCentralWidget(scroll_area)
 
     def create_menus(self):
@@ -32,7 +33,7 @@ class MainWindow(QMainWindow):
         self.setMenuBar(menubar)
 
     def exit_app(self):
-        sys.exit(self.exit_app)
+        sys.exit(str(self.exit_app))
 
     def load_image(self):
         filename, ok = QFileDialog.getOpenFileName(
