@@ -5,6 +5,8 @@ from PySide6 import QtCore
 from PySide6.QtGui import QPixmap, QPalette, Qt
 from PySide6.QtWidgets import QMainWindow, QMenuBar, QFileDialog, QScrollArea, QLabel
 
+from components.draggable_label import DraggableLabel
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -17,7 +19,7 @@ class MainWindow(QMainWindow):
         scroll_area = QScrollArea()
         scroll_area.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.label = QLabel()
+        self.label = DraggableLabel(scroll_area)
 
         scroll_area.setWidget(self.label)
         self.setCentralWidget(scroll_area)
