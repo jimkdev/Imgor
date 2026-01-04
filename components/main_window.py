@@ -18,7 +18,6 @@ class MainWindow(QMainWindow):
         scroll_area.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.label = QLabel()
-        self.label.setBackgroundRole(QPalette.ColorRole.Base)
 
         scroll_area.setWidget(self.label)
         self.setCentralWidget(scroll_area)
