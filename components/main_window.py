@@ -1,8 +1,9 @@
 import os
 import sys
 
+from PIL import Image
 from PySide6 import QtCore
-from PySide6.QtGui import QPixmap, Qt
+from PySide6.QtGui import QPixmap, Qt, QImage
 from PySide6.QtWidgets import QMainWindow, QMenuBar, QFileDialog, QScrollArea
 
 from components.draggable_label import DraggableLabel
@@ -14,6 +15,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Imgor")
         self.setMinimumSize(550, 550)
 
+        self.original_image = None
+        self.new_image = None
         self.create_menus()
 
         scroll_area = QScrollArea()
@@ -31,6 +34,10 @@ class MainWindow(QMainWindow):
         file_menu.addSeparator()
         file_menu.addAction("&Exit", self.exit_app)
 
+        image_menu = menubar.addMenu("&Image")
+        modes_submenu = image_menu.addMenu("&Modes")
+        modes_submenu.addAction("&Grayscale", self.convert_to_grayscale)
+
         self.setMenuBar(menubar)
 
     def exit_app(self):
@@ -45,6 +52,25 @@ class MainWindow(QMainWindow):
         )
 
         if ok and filename is not None:
-            pixmap = QPixmap(filename)
-            self.label.setPixmap(pixmap)
+            with Image.open(filename) as img:
+                self.original_image = img
+                q_image = QImage(
+                    self.original_image.tobytes("raw", "RGBA"),
+                    self.original_image.width,
+                    self.original_image.height,
+                    QImage.Format.Format_RGBA8888,
+                )
+                self.label.setPixmap(QPixmap.fromImage(q_image))
             self.label.adjustSize()
+
+    def convert_to_grayscale(self):
+        if self.original_image is not None:
+            self.new_image = self.original_image.convert("L")
+            q_image = QImage(
+                self.new_image.tobytes("raw", "L"),
+                self.new_image.width,
+                self.new_image.height,
+                self.new_image.width,
+                QImage.Format.Format_Grayscale8,
+            )
+            self.label.setPixmap(QPixmap.fromImage(q_image))
