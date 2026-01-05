@@ -2,8 +2,8 @@ import os
 import sys
 
 from PySide6 import QtCore
-from PySide6.QtGui import QPixmap, QPalette, Qt
-from PySide6.QtWidgets import QMainWindow, QMenuBar, QFileDialog, QScrollArea, QLabel
+from PySide6.QtGui import QPixmap, Qt
+from PySide6.QtWidgets import QMainWindow, QMenuBar, QFileDialog, QScrollArea
 
 from components.draggable_label import DraggableLabel
 
