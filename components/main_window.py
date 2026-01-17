@@ -57,7 +57,7 @@ class MainWindow(QMainWindow):
 
         if ok and filename is not None:
             with Image.open(filename) as img:
-                self.original_image = img
+                self.original_image = img.convert("RGBA")
                 q_image = QImage(
                     self.original_image.tobytes("raw", "RGBA"),
                     self.original_image.width,
