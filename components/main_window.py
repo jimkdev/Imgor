@@ -1,5 +1,6 @@
 import os
 import sys
+import platform
 
 from PIL import Image
 from PySide6 import QtCore
@@ -47,7 +48,10 @@ class MainWindow(QMainWindow):
         filename, ok = QFileDialog.getOpenFileName(
             self,
             "Select an Image",
-            os.path.join(QtCore.QDir.homePath(), "pictures"),
+            os.path.join(
+                QtCore.QDir.homePath(),
+                "pictures" if platform.system() == "Windows" else "Pictures",
+            ),
             "Images (*.png *.jpg *.jpeg)",
         )
 
