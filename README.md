@@ -64,3 +64,10 @@ can be found [here](https://black.readthedocs.io/en/stable/).
 ```shell
 black **/*.py
 ```
+
+## Checking for errors
+We can and should check for warnings and errors in our code using **pylint** by running the following command.
+More information about pylint can be found [here](https://pylint.readthedocs.io/en/stable/index.html#).
+```shell
+pylint **/*.py
+```
