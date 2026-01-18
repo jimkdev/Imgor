@@ -1,3 +1,5 @@
+"""This module contains the MainWindow class which is an extension of QMainWindow"""
+
 import os
 import sys
 import platform
@@ -11,6 +13,9 @@ from components.draggable_label import DraggableLabel
 
 
 class MainWindow(QMainWindow):
+    """The MainWindow class initializes the main window and contains controllers for
+    some window actions"""
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Imgor")
@@ -29,6 +34,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(scroll_area)
 
     def create_menus(self):
+        """This method initializes the application's menu"""
         menubar = QMenuBar()
         file_menu = menubar.addMenu("&File")
         file_menu.addAction("&Open...", self.load_image)
@@ -42,9 +48,14 @@ class MainWindow(QMainWindow):
         self.setMenuBar(menubar)
 
     def exit_app(self):
+        """This method terminates the application"""
         sys.exit(str(self.exit_app))
 
     def load_image(self):
+        """Responsible for loading an image.
+        The read image is first converted to "RGBA" before displaying it.
+        This fixes a bug where we could not load a grayscale image.
+        """
         filename, ok = QFileDialog.getOpenFileName(
             self,
             "Select an Image",
@@ -56,6 +67,7 @@ class MainWindow(QMainWindow):
         )
 
         if ok and filename is not None:
+            # Load the image with PIL and then create a QImage instance
             with Image.open(filename) as img:
                 self.original_image = img.convert("RGBA")
                 q_image = QImage(
@@ -68,6 +80,7 @@ class MainWindow(QMainWindow):
             self.label.adjustSize()
 
     def convert_to_grayscale(self):
+        "This method converts an RGBA image to grayscale"
         if self.original_image is not None:
             self.new_image = self.original_image.convert("L")
             q_image = QImage(

@@ -1,8 +1,14 @@
+"""This module contains the DraggableLabel class.
+A DraggableLabel is a QLabel which can be dragged with the mouse.
+It is mainly used for creating a draggable image."""
+
 from PySide6.QtWidgets import QLabel
 from PySide6.QtCore import Qt, QPoint
 
 
 class DraggableLabel(QLabel):
+    """This class is a QLabel which can be dragged with the mouse."""
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self._dragging = False
@@ -19,9 +25,11 @@ class DraggableLabel(QLabel):
             super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
+        """This method is listening for the mouse movement"""
         if self._dragging:
             # Move relative to parent
             new_pos = self.mapToParent(event.position().toPoint() - self._drag_offset)
+            # Keep image inside of parent's bounds
             parent_rect = self.parent().rect()
             new_pos.setX(max(0, min(new_pos.x(), parent_rect.width() - self.width())))
             new_pos.setY(max(0, min(new_pos.y(), parent_rect.height() - self.height())))
@@ -31,6 +39,7 @@ class DraggableLabel(QLabel):
             super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
+        """This method is listening for the mouse release event"""
         if event.button() == Qt.MouseButton.LeftButton:
             self._dragging = False
             self.setCursor(Qt.CursorShape.ArrowCursor)
