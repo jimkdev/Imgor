@@ -3,6 +3,7 @@
 import os
 import sys
 import platform
+import traceback
 
 from PIL import Image
 from PySide6 import QtCore
@@ -38,6 +39,7 @@ class MainWindow(QMainWindow):
         menubar = QMenuBar()
         file_menu = menubar.addMenu("&File")
         file_menu.addAction("&Open...", self.load_image)
+        file_menu.addAction("&Save as...", self.save_image_as)
         file_menu.addSeparator()
         file_menu.addAction("&Exit", self.exit_app)
 
@@ -78,6 +80,38 @@ class MainWindow(QMainWindow):
                 )
                 self.label.setPixmap(QPixmap.fromImage(q_image))
             self.label.adjustSize()
+
+    def save_image_as(self):
+        """This method saves an edited image.
+        The edited image can have the extensions .png, .jpg or .jpeg
+        """
+        filename, selected_filter = QFileDialog.getSaveFileName(
+            self,
+            "Save image as...",
+            os.path.join(
+                QtCore.QDir.homePath(),
+                "pictures" if platform.system() == "Windows" else "Pictures",
+            ),
+            "PNG (*.png);;JPG (*.jpg);;JPEG (*.jpeg))",
+        )
+
+        try:
+            if self.new_image is None:
+                self.new_image = self.original_image
+
+            # Get the file extension (.png, .jpg, .jpeg)
+            extension = selected_filter.split("*")[-1].strip(")")
+
+            if not filename.endswith(extension):
+                filename += extension
+
+            if extension == ".jpg" or extension == ".jpeg":
+                # We cannot save an jpg or jpeg image with RGBA
+                self.new_image = self.new_image.convert("RGB")
+
+            self.new_image.save(filename)
+        except (AttributeError, KeyError):
+            print(traceback.format_exc())
 
     def convert_to_grayscale(self):
         "This method converts an RGBA image to grayscale"
