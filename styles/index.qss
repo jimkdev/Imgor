@@ -1,4 +1,4 @@
-QScrollArea, QLabel {
+QScrollArea, QScrollArea QLabel {
     background-color: #2b2b2b;
     border: none;
 }
