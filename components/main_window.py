@@ -114,7 +114,7 @@ class MainWindow(QMainWindow):
             print(traceback.format_exc())
 
     def convert_to_grayscale(self):
-        "This method converts an RGBA image to grayscale"
+        """This method converts an RGBA image to grayscale"""
         if self.original_image is not None:
             self.new_image = self.original_image.convert("L")
             q_image = QImage(
