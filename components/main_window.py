@@ -6,6 +6,7 @@ import platform
 import traceback
 
 from PIL import Image
+from PIL import ImageFilter
 from PySide6 import QtCore
 from PySide6.QtGui import QPixmap, Qt, QImage
 from PySide6.QtWidgets import QMainWindow, QMenuBar, QFileDialog, QScrollArea
@@ -46,6 +47,7 @@ class MainWindow(QMainWindow):
         image_menu = menubar.addMenu("&Image")
         modes_submenu = image_menu.addMenu("&Modes")
         modes_submenu.addAction("&Grayscale", self.convert_to_grayscale)
+        modes_submenu.addAction("&Gaussian Blur", self.apply_gaussian_blur)
 
         self.setMenuBar(menubar)
 
@@ -114,9 +116,10 @@ class MainWindow(QMainWindow):
             print(traceback.format_exc())
 
     def convert_to_grayscale(self):
-        "This method converts an RGBA image to grayscale"
+        """This method converts an RGBA image to grayscale"""
         if self.original_image is not None:
             self.new_image = self.original_image.convert("L")
+            print(type(self.original_image))
             q_image = QImage(
                 self.new_image.tobytes("raw", "L"),
                 self.new_image.width,
@@ -125,3 +128,21 @@ class MainWindow(QMainWindow):
                 QImage.Format.Format_Grayscale8,
             )
             self.label.setPixmap(QPixmap.fromImage(q_image))
+
+
+    def apply_gaussian_blur(self):
+        """apply gaussian blur to the image"""
+        if self.original_image is not None:
+            img1 = self.original_image.convert("RGBA")
+            self.new_image = img1.filter(ImageFilter.GaussianBlur(2))
+            q_image = QImage(
+                self.new_image.tobytes("raw", "RGBA"),
+                self.new_image.width,
+                self.new_image.height,
+                self.new_image.width * 4, #ήθελε Χ4 γτ 4 bytes per pixel !!!
+                QImage.Format.Format_RGB444
+            )
+            self.label.setPixmap(QPixmap.fromImage(q_image))
+
+
+    # TODO: add a utils file that contains file type conversions from and to QT components
