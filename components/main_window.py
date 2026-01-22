@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
 
         self.original_image = None
         self.new_image = None
+        self.is_grayscale = False
         self.create_menus()
 
         scroll_area = QScrollArea()
@@ -44,6 +45,11 @@ class MainWindow(QMainWindow):
         file_menu.addAction("&Exit", self.exit_app)
 
         image_menu = menubar.addMenu("&Image")
+        rotation_submenu = image_menu.addMenu("&Rotation")
+        rotation_submenu.addAction("Reset", self.reset_image_rotation)
+        rotation_submenu.addAction("Rotate left", self.rotate_image_left)
+        rotation_submenu.addAction("Rotate right", self.rotate_image_right)
+        rotation_submenu.addAction("Flip image", self.flip_image)
         modes_submenu = image_menu.addMenu("&Modes")
         modes_submenu.addAction("&Grayscale", self.convert_to_grayscale)
 
@@ -58,6 +64,7 @@ class MainWindow(QMainWindow):
         The read image is first converted to "RGBA" before displaying it.
         This fixes a bug where we could not load a grayscale image.
         """
+        self.original_image = None
         filename, ok = QFileDialog.getOpenFileName(
             self,
             "Select an Image",
@@ -117,6 +124,7 @@ class MainWindow(QMainWindow):
         """This method converts an RGBA image to grayscale"""
         if self.original_image is not None:
             self.new_image = self.original_image.convert("L")
+            self.is_grayscale = True
             q_image = QImage(
                 self.new_image.tobytes("raw", "L"),
                 self.new_image.width,
@@ -125,3 +133,63 @@ class MainWindow(QMainWindow):
                 QImage.Format.Format_Grayscale8,
             )
             self.label.setPixmap(QPixmap.fromImage(q_image))
+
+    def reset_image_rotation(self):
+        raise NotImplementedError
+
+    def rotate_image_left(self):
+        try:
+            if self.new_image is None:
+                self.new_image = self.original_image
+
+            self.new_image = self.new_image.rotate(90, expand=True)
+            q_image = QImage(
+                self.new_image.tobytes("raw", "RGBA" if not self.is_grayscale else "L"),
+                self.new_image.width,
+                self.new_image.height,
+                (
+                    self.new_image.width * 4
+                    if not self.is_grayscale
+                    else self.new_image.width
+                ),
+                (
+                    QImage.Format.Format_RGBA8888
+                    if not self.is_grayscale
+                    else QImage.Format.Format_Grayscale8
+                ),
+            ).copy()
+
+            self.label.setPixmap(QPixmap.fromImage(q_image))
+            self.label.resize(self.label.pixmap().size())
+        except AttributeError:
+            print(traceback.format_exc())
+
+    def rotate_image_right(self):
+        try:
+            if self.new_image is None:
+                self.new_image = self.original_image
+
+            self.new_image = self.new_image.rotate(-90, expand=True)
+            q_image = QImage(
+                self.new_image.tobytes("raw", "RGBA" if not self.is_grayscale else "L"),
+                self.new_image.width,
+                self.new_image.height,
+                (
+                    self.new_image.width * 4
+                    if not self.is_grayscale
+                    else self.new_image.width
+                ),
+                (
+                    QImage.Format.Format_RGBA8888
+                    if not self.is_grayscale
+                    else QImage.Format.Format_Grayscale8
+                ),
+            ).copy()
+
+            self.label.setPixmap(QPixmap.fromImage(q_image))
+            self.label.resize(self.label.pixmap().size())
+        except AttributeError:
+            print(traceback.format_exc())
+
+    def flip_image(self):
+        raise NotImplementedError
