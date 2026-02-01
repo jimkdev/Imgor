@@ -5,6 +5,8 @@
 - [Installation](#installation)
   - [Creating a virtual environment](#creating-a-virtual-environment)
   - [Activating the virtual environment](#activating-the-virtual-environment)
+    - [Windows](#windows)
+    - [Linux](#linux)
   - [Installing requirements](#installing-requirements)
 - [Uninstall](#uninstall)
   - [Remove installed dependencies](#remove-installed-dependencies)
@@ -28,8 +30,14 @@ python -m venv .venv
 
 ### Activating the virtual environment
 
+#### Windows
 ```shell
 .venv/Scripts/activate
+```
+
+#### Linux
+```shell
+source .venv/bin/activate
 ```
 
 ### Installing requirements

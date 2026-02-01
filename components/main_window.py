@@ -108,7 +108,7 @@ class MainWindow(QMainWindow):
                 filename += extension
 
             if extension == ".jpg" or extension == ".jpeg":
-                # We cannot save an jpg or jpeg image with RGBA
+                # We cannot save a jpg or jpeg image with RGBA
                 self.new_image = self.new_image.convert("RGB")
 
             self.new_image.save(filename)
