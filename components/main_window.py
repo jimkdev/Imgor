@@ -145,11 +145,10 @@ class MainWindow(QMainWindow):
                 self.new_image.tobytes("raw", "RGBA"),
                 self.new_image.width,
                 self.new_image.height,
-                self.new_image.width * 4, #ήθελε Χ4 γτ 4 bytes per pixel !!!
-                QImage.Format.Format_RGB444
+                self.new_image.width * 4,  # ήθελε Χ4 γτ 4 bytes per pixel !!!
+                QImage.Format.Format_RGBA8888,
             )
             self.label.setPixmap(QPixmap.fromImage(q_image))
-
 
     # TODO: add a utils file that contains file type conversions from and to QT components
 
