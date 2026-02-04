@@ -1,8 +1,8 @@
 """This module contains the MainWindow class which is an extension of QMainWindow"""
 
 import os
-import sys
 import platform
+import sys
 import traceback
 
 from PIL import Image
@@ -50,7 +50,12 @@ class MainWindow(QMainWindow):
         rotation_submenu.addAction("Reset", self.reset_image_rotation)
         rotation_submenu.addAction("Rotate left", self.rotate_image_left)
         rotation_submenu.addAction("Rotate right", self.rotate_image_right)
-        rotation_submenu.addAction("Flip image", self.flip_image)
+        rotation_submenu.addAction(
+            "Flip image (Left - Right)", self.flip_image_left_right
+        )
+        rotation_submenu.addAction(
+            "Flip image (Top - Bottom)", self.flip_image_top_bottom
+        )
         modes_submenu = image_menu.addMenu("&Modes")
         modes_submenu.addAction("&Grayscale", self.convert_to_grayscale)
         modes_submenu.addAction("&Gaussian Blur", self.apply_gaussian_blur)
@@ -209,5 +214,56 @@ class MainWindow(QMainWindow):
         except AttributeError:
             print(traceback.format_exc())
 
-    def flip_image(self):
-        raise NotImplementedError
+    def flip_image_left_right(self):
+        try:
+            if self.new_image is None:
+                self.new_image = self.original_image
+
+            self.new_image = self.new_image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+            q_image = QImage(
+                self.new_image.tobytes("raw", "RGBA" if not self.is_grayscale else "L"),
+                self.new_image.width,
+                self.new_image.height,
+                (
+                    self.new_image.width * 4
+                    if not self.is_grayscale
+                    else self.new_image.width
+                ),
+                (
+                    QImage.Format.Format_RGBA8888
+                    if not self.is_grayscale
+                    else QImage.Format.Format_Grayscale8
+                ),
+            ).copy()
+
+            self.label.setPixmap(QPixmap.fromImage(q_image))
+            self.label.resize(self.label.pixmap().size())
+        except AttributeError:
+            print(traceback.format_exc())
+
+    def flip_image_top_bottom(self):
+        try:
+            if self.new_image is None:
+                self.new_image = self.original_image
+
+            self.new_image = self.new_image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+            q_image = QImage(
+                self.new_image.tobytes("raw", "RGBA" if not self.is_grayscale else "L"),
+                self.new_image.width,
+                self.new_image.height,
+                (
+                    self.new_image.width * 4
+                    if not self.is_grayscale
+                    else self.new_image.width
+                ),
+                (
+                    QImage.Format.Format_RGBA8888
+                    if not self.is_grayscale
+                    else QImage.Format.Format_Grayscale8
+                ),
+            ).copy()
+
+            self.label.setPixmap(QPixmap.fromImage(q_image))
+            self.label.resize(self.label.pixmap().size())
+        except AttributeError:
+            print(traceback.format_exc())
