@@ -11,10 +11,16 @@ from PIL import Image
 from PIL import ImageFilter
 from PySide6 import QtCore
 from PySide6.QtGui import QPixmap, Qt, QImage
-from PySide6.QtWidgets import QMainWindow, QMenuBar, QFileDialog, QScrollArea
-
+from PySide6.QtWidgets import (
+    QMainWindow,
+    QMenuBar,
+    QFileDialog,
+    QScrollArea,
+    QInputDialog,
+)
 
 from components.draggable_label import DraggableLabel
+from enums import ImageFlipOrientations
 
 
 class MainWindow(QMainWindow):
@@ -53,12 +59,7 @@ class MainWindow(QMainWindow):
         rotation_submenu.addAction("Reset", self.reset_image_rotation)
         rotation_submenu.addAction("Rotate left", self.rotate_image_left)
         rotation_submenu.addAction("Rotate right", self.rotate_image_right)
-        rotation_submenu.addAction(
-            "Flip image (Left - Right)", self.flip_image_left_right
-        )
-        rotation_submenu.addAction(
-            "Flip image (Top - Bottom)", self.flip_image_top_bottom
-        )
+        rotation_submenu.addAction("Flip image", self.flip_image)
         modes_submenu = image_menu.addMenu("&Modes")
         modes_submenu.addAction("&Grayscale", self.convert_to_grayscale)
         modes_submenu.addAction("&Gaussian Blur", self.apply_gaussian_blur)
@@ -192,30 +193,30 @@ class MainWindow(QMainWindow):
         except AttributeError:
             print(traceback.format_exc())
 
-    def flip_image_left_right(self):
-        """Flip an image from left to right"""
+    def flip_image(self):
+        """Flip an imag image from top to bottom or left to right"""
         try:
             if self.new_image is None:
                 self.new_image = self.original_image
 
-            self.new_image = self.new_image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-            q_image = controllers.create_q_image(self.new_image, self.is_grayscale)
+            choice, done = QInputDialog.getItem(
+                self,
+                "Choose image flip orientation",
+                "",
+                [
+                    ImageFlipOrientations.TOP_BOTTOM.value,
+                    ImageFlipOrientations.LEFT_RIGHT.value,
+                ],
+            )
 
-            self.label.setPixmap(QPixmap.fromImage(q_image))
-            self.label.resize(self.label.pixmap().size())
-        except AttributeError:
-            print(traceback.format_exc())
+            if done:
+                new_image = controllers.flip_image(self.new_image, choice)
+                self.new_image = (
+                    new_image if new_image is not None else self.new_image
+                )  # Replace with new image or keep the same
+                q_image = controllers.create_q_image(self.new_image, self.is_grayscale)
 
-    def flip_image_top_bottom(self):
-        """Flip an image from top to bottom"""
-        try:
-            if self.new_image is None:
-                self.new_image = self.original_image
-
-            self.new_image = self.new_image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
-            q_image = controllers.create_q_image(self.new_image, self.is_grayscale)
-
-            self.label.setPixmap(QPixmap.fromImage(q_image))
-            self.label.resize(self.label.pixmap().size())
+                self.label.setPixmap(QPixmap.fromImage(q_image))
+                self.label.resize(self.label.pixmap().size())
         except AttributeError:
             print(traceback.format_exc())

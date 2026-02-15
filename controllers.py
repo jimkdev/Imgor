@@ -1,4 +1,7 @@
+from PIL import Image
 from PySide6.QtGui import QImage
+
+from enums import ImageFlipOrientations
 
 
 def create_q_image(image, is_grayscale):
@@ -17,3 +20,13 @@ def create_q_image(image, is_grayscale):
                     else QImage.Format.Format_Grayscale8
                 ),
             ).copy()
+
+
+def flip_image(image, choice):
+    if choice == ImageFlipOrientations.TOP_BOTTOM.value:
+        return image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+
+    if choice == ImageFlipOrientations.LEFT_RIGHT.value:
+        return image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+
+    return None
