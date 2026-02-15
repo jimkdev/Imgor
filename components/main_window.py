@@ -1,17 +1,26 @@
 """This module contains the MainWindow class which is an extension of QMainWindow"""
 
 import os
-import sys
 import platform
+import sys
 import traceback
+
+import controllers
 
 from PIL import Image
 from PIL import ImageFilter
 from PySide6 import QtCore
 from PySide6.QtGui import QPixmap, Qt, QImage
-from PySide6.QtWidgets import QMainWindow, QMenuBar, QFileDialog, QScrollArea
+from PySide6.QtWidgets import (
+    QMainWindow,
+    QMenuBar,
+    QFileDialog,
+    QScrollArea,
+    QInputDialog,
+)
 
 from components.draggable_label import DraggableLabel
+from enums import ImageFlipOrientations
 
 
 class MainWindow(QMainWindow):
@@ -25,6 +34,7 @@ class MainWindow(QMainWindow):
 
         self.original_image = None
         self.new_image = None
+        self.is_grayscale = False
         self.create_menus()
 
         scroll_area = QScrollArea()
@@ -45,6 +55,11 @@ class MainWindow(QMainWindow):
         file_menu.addAction("&Exit", self.exit_app)
 
         image_menu = menubar.addMenu("&Image")
+        rotation_submenu = image_menu.addMenu("&Rotation")
+        rotation_submenu.addAction("Reset", self.reset_image_rotation)
+        rotation_submenu.addAction("Rotate left", self.rotate_image_left)
+        rotation_submenu.addAction("Rotate right", self.rotate_image_right)
+        rotation_submenu.addAction("Flip image", self.flip_image)
         modes_submenu = image_menu.addMenu("&Modes")
         modes_submenu.addAction("&Grayscale", self.convert_to_grayscale)
         modes_submenu.addAction("&Gaussian Blur", self.apply_gaussian_blur)
@@ -60,6 +75,7 @@ class MainWindow(QMainWindow):
         The read image is first converted to "RGBA" before displaying it.
         This fixes a bug where we could not load a grayscale image.
         """
+        self.original_image = None
         filename, ok = QFileDialog.getOpenFileName(
             self,
             "Select an Image",
@@ -119,7 +135,7 @@ class MainWindow(QMainWindow):
         """This method converts an RGBA image to grayscale"""
         if self.original_image is not None:
             self.new_image = self.original_image.convert("L")
-            print(type(self.original_image))
+            self.is_grayscale = True
             q_image = QImage(
                 self.new_image.tobytes("raw", "L"),
                 self.new_image.width,
@@ -130,7 +146,7 @@ class MainWindow(QMainWindow):
             self.label.setPixmap(QPixmap.fromImage(q_image))
 
     def apply_gaussian_blur(self):
-        """apply gaussian blur to the image"""
+        """Apply gaussian blur to the image"""
         if self.original_image is not None:
             img1 = self.original_image.convert("RGBA")
             self.new_image = img1.filter(ImageFilter.GaussianBlur(2))
@@ -138,9 +154,69 @@ class MainWindow(QMainWindow):
                 self.new_image.tobytes("raw", "RGBA"),
                 self.new_image.width,
                 self.new_image.height,
-                self.new_image.width * 4,  # ήθελε Χ4 γτ 4 bytes per pixel !!!
+                self.new_image.width * 4,  # it wanted Χ4 for 4 bytes per pixel !!!
                 QImage.Format.Format_RGBA8888,
             )
             self.label.setPixmap(QPixmap.fromImage(q_image))
 
     # TODO: add a utils file that contains file type conversions from and to QT components
+
+    def reset_image_rotation(self):
+        """Reset a rotated image to original rotation"""
+        raise NotImplementedError
+
+    def rotate_image_left(self):
+        """Rotate an image counter-clockwise"""
+        try:
+            if self.new_image is None:
+                self.new_image = self.original_image
+
+            self.new_image = self.new_image.rotate(90, expand=True)
+            q_image = controllers.create_q_image(self.new_image, self.is_grayscale)
+
+            self.label.setPixmap(QPixmap.fromImage(q_image))
+            self.label.resize(self.label.pixmap().size())
+        except AttributeError:
+            print(traceback.format_exc())
+
+    def rotate_image_right(self):
+        """Rotate an image clockwise"""
+        try:
+            if self.new_image is None:
+                self.new_image = self.original_image
+
+            self.new_image = self.new_image.rotate(-90, expand=True)
+            q_image = controllers.create_q_image(self.new_image, self.is_grayscale)
+
+            self.label.setPixmap(QPixmap.fromImage(q_image))
+            self.label.resize(self.label.pixmap().size())
+        except AttributeError:
+            print(traceback.format_exc())
+
+    def flip_image(self):
+        """Flip an imag image from top to bottom or left to right"""
+        try:
+            if self.new_image is None:
+                self.new_image = self.original_image
+
+            choice, done = QInputDialog.getItem(
+                self,
+                "Flip image",
+                "Choose image flip orientation...",
+                [
+                    ImageFlipOrientations.TOP_BOTTOM.value,
+                    ImageFlipOrientations.LEFT_RIGHT.value,
+                ],
+            )
+
+            if done:
+                new_image = controllers.flip_image(self.new_image, choice)
+                self.new_image = (
+                    new_image if new_image is not None else self.new_image
+                )  # Replace with new image or keep the same
+                q_image = controllers.create_q_image(self.new_image, self.is_grayscale)
+
+                self.label.setPixmap(QPixmap.fromImage(q_image))
+                self.label.resize(self.label.pixmap().size())
+        except AttributeError:
+            print(traceback.format_exc())
