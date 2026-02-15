@@ -5,6 +5,8 @@ import platform
 import sys
 import traceback
 
+from PIL.ImageOps import expand
+
 import controllers
 
 from PIL import Image
@@ -35,6 +37,7 @@ class MainWindow(QMainWindow):
         self.original_image = None
         self.new_image = None
         self.is_grayscale = False
+        self.rotation_degrees = 0
         self.create_menus()
 
         scroll_area = QScrollArea()
@@ -163,7 +166,18 @@ class MainWindow(QMainWindow):
 
     def reset_image_rotation(self):
         """Reset a rotated image to original rotation"""
-        raise NotImplementedError
+        try:
+            if self.new_image is None:
+                self.new_image = self.original_image
+
+            self.new_image = self.new_image.rotate(self.rotation_degrees, expand=True)
+            self.rotation_degrees = 0
+            q_image = controllers.create_q_image(self.new_image, self.is_grayscale)
+
+            self.label.setPixmap(QPixmap.fromImage(q_image))
+            self.label.resize(self.label.pixmap().size())
+        except AttributeError:
+            print(traceback.format_exc())
 
     def rotate_image_left(self):
         """Rotate an image counter-clockwise"""
@@ -172,6 +186,7 @@ class MainWindow(QMainWindow):
                 self.new_image = self.original_image
 
             self.new_image = self.new_image.rotate(90, expand=True)
+            self.rotation_degrees -= 90
             q_image = controllers.create_q_image(self.new_image, self.is_grayscale)
 
             self.label.setPixmap(QPixmap.fromImage(q_image))
@@ -186,6 +201,7 @@ class MainWindow(QMainWindow):
                 self.new_image = self.original_image
 
             self.new_image = self.new_image.rotate(-90, expand=True)
+            self.rotation_degrees += 90
             q_image = controllers.create_q_image(self.new_image, self.is_grayscale)
 
             self.label.setPixmap(QPixmap.fromImage(q_image))
