@@ -201,8 +201,8 @@ class MainWindow(QMainWindow):
 
             choice, done = QInputDialog.getItem(
                 self,
-                "Choose image flip orientation",
-                "",
+                "Flip image",
+                "Choose image flip orientation...",
                 [
                     ImageFlipOrientations.TOP_BOTTOM.value,
                     ImageFlipOrientations.LEFT_RIGHT.value,
